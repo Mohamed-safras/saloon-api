@@ -23,6 +23,7 @@ const SaloonSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+      unique: true,
     },
     email: { type: String, required: true },
     password: {
@@ -40,7 +41,6 @@ const SaloonSchema = new mongoose.Schema(
       street: String,
       city: String,
       district: String,
-      province: String,
       zip: String,
       country: String,
 

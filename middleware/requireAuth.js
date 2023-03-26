@@ -5,7 +5,13 @@ const SaloonAuthUser = async (req, res, next) => {
   const { authorization } = req.headers;
   try {
     if (!authorization) {
-      return res.status(400).json({ error: "Authorization token is required" });
+      return res
+        .status(401)
+        .json({
+          status: "failure",
+          code: 401,
+          message: "Authorization token is required",
+        });
     }
 
     if (authorization.includes("Bearer")) {
@@ -17,9 +23,11 @@ const SaloonAuthUser = async (req, res, next) => {
       });
 
       if (!saloon) {
-        return res
-          .status(400)
-          .json({ error: "You are not allowed to do this operation" });
+        return res.status(401).json({
+          status: "failure",
+          code: 401,
+          message: "You are not authorized.",
+        });
       }
 
       req.user = saloon._id;

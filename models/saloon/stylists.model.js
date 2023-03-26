@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Point } = require("./saloon.model");
 
-const specialistSchema = new mongoose.Schema(
+const stylistSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -53,8 +53,13 @@ const specialistSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    working_time: {
+      type: String,
+      required: false,
+      enum: ["Part Time", "Full Time"],
+    },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("specialists", specialistSchema);
+module.exports = mongoose.model("stylist", stylistSchema);

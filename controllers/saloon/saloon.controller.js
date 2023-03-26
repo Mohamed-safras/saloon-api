@@ -9,7 +9,7 @@ const {
 const jwt = require("jsonwebtoken");
 
 const createToken = (_id) => {
-  return jwt.sign({ _id }, process.env.JSONWEBTOKEN, { expiresIn: "3d" });
+  return jwt.sign({ _id }, process.env.JSONWEBTOKEN, { expiresIn: "30d" });
 };
 
 const createSaloon = async (req, res) => {
@@ -17,23 +17,33 @@ const createSaloon = async (req, res) => {
 
   try {
     if (validator.isEmpty(title)) {
-      return res.status(400).json({ error: "Saloon name can not be empty" });
+      return res.status(400).json({
+        message: "Saloon name can not be empty",
+        code: 400,
+        status: "failure",
+      });
     }
 
     if (!validator.isStrongPassword(password, passwordOption)) {
       return res.status(400).json({
-        error: passwordError,
+        message: passwordError,
       });
     }
 
     if (!validator.isEmail(email)) {
-      return res
-        .status(400)
-        .json({ error: "Email is not valid, check your email address" });
+      return res.status(400).json({
+        message: "Email is not valid, check your email address",
+        code: 400,
+        status: "failure",
+      });
     }
 
     if (!isValidMobilePhone(phone)) {
-      return res.status(400).json({ error: "phone number is not valid" });
+      return res.status(400).json({
+        message: "phone number is not valid",
+        code: 400,
+        status: "failure",
+      });
     }
 
     const saloon = await saloonModel.findOne({ email });
@@ -51,7 +61,7 @@ const createSaloon = async (req, res) => {
 
       const token = createToken(newSaloon._id);
 
-      return res.status(200).json({
+      return res.status(201).json({
         token,
         title: newSaloon.title,
         email: newSaloon.email,
@@ -60,10 +70,14 @@ const createSaloon = async (req, res) => {
         role: newSaloon.role,
       });
     } else {
-      return res.status(400).json({ error: "user is already exist" });
+      return res.status(400).json({
+        message: "user is already exist",
+        code: 400,
+        status: "failure",
+      });
     }
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(500).json(error);
   }
 };
 
@@ -72,26 +86,39 @@ const signInSaloon = async (req, res) => {
 
   try {
     if (!email || !password) {
-      return res.status(400).json({ error: "all field must be filled" });
+      return res.status(400).json({
+        message: "all field must be filled",
+        code: 400,
+        status: "failure",
+      });
     }
 
     if (!validator.isEmail(email)) {
-      return res
-        .status(400)
-        .json({ error: "Email is not valid, check your email address" });
+      return res.status(400).json({
+        message: "Email is not valid, check your email address",
+        code: 400,
+        status: "failure",
+      });
     }
 
     const saloon = await saloonModel.findOne({ email });
 
     if (!saloon) {
-      return res.status(400).json({ error: "Invalid email or password" });
+      return res.status(400).json({
+        message: "Invalid email or password",
+        code: 400,
+        status: "failure",
+      });
     }
 
     const passwordMatch = await saloon.isPassWordMatch(password);
-    console.log(passwordMatch);
 
     if (!passwordMatch) {
-      return res.status(400).json({ error: "Invalid email or password" });
+      return res.status(400).json({
+        message: "Invalid email or password",
+        code: 400,
+        status: "failure",
+      });
     }
 
     if (saloon && passwordMatch) {
@@ -99,11 +126,18 @@ const signInSaloon = async (req, res) => {
       const token = createToken(_id);
 
       return res.status(200).json({
-        success: "You are successfully logged in",
-        data: { token, title, _id, email, address, phone, avatar },
+        token,
+        title,
+        _id,
+        email,
+        address,
+        phone,
+        avatar,
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    return res.status(500).json(error);
+  }
 };
 
 module.exports = {

@@ -5,8 +5,10 @@ const cors = require("cors");
 
 const bodyParser = require("body-parser");
 const saloonRouter = require("./router/saloon/auth");
-const saloonspecialistRouter = require("./router/saloon/specialist");
+const saloonspecialistRouter = require("./router/saloon/stylist");
 const saloonserviceRouter = require("./router/saloon/service");
+const { UnAuthorized, NotFound } = require("./middleware/ErrorHandler");
+
 const app = express();
 
 // middleware functions
@@ -19,6 +21,10 @@ app.use(cors());
 app.use("/api/v1/saloon/", saloonRouter);
 app.use("/api/v1/saloon/", saloonspecialistRouter);
 app.use("/api/v1/saloon/", saloonserviceRouter);
+
+app.use(UnAuthorized);
+app.use(NotFound);
+
 // db connection and server listning
 connectDB()
   .then(() => {
