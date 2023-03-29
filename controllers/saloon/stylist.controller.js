@@ -45,10 +45,10 @@ const addStylist = async (req, res) => {
     const stylist = await stylistModel.findOne({ email });
 
     if (stylist) {
-      return res.status(200).json({
+      return res.status(400).json({
         message:
           "The email address of the stylist already blongs to another saloon",
-        code: 200,
+        code: 400,
         status: "failure",
       });
     }
@@ -85,6 +85,7 @@ const getAllStylist = async (req, res) => {
     }
     return res.status(200).json(allStylists);
   } catch (error) {
+    console.log(error);
     return res.status(500).json(error);
   }
 };

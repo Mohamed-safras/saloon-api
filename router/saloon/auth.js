@@ -3,10 +3,11 @@ const {
   createSaloon,
   signInSaloon,
 } = require("../../controllers/saloon/saloon.controller");
-const AuthUser = require("../../middleware/requireAuth");
+const upload = require("../../utils/upload");
+
 const saloonRouter = express.Router();
 
-saloonRouter.post("/register", createSaloon);
+saloonRouter.post("/register", upload.single("avatar"), createSaloon);
 
 saloonRouter.post("/signin", signInSaloon);
 
