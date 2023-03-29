@@ -5,7 +5,7 @@ const {
   passwordOption,
   passwordError,
 } = require("../../validation/validation");
-
+const cloudinary = require("../../utils/cloudinary");
 const jwt = require("jsonwebtoken");
 
 const createToken = (_id) => {
@@ -13,7 +13,7 @@ const createToken = (_id) => {
 };
 
 const createSaloon = async (req, res) => {
-  const { title, email, password, avatar, phone, address, role } = req.body;
+  const { title, email, password, phone, address, role } = req.body;
 
   try {
     if (validator.isEmpty(title)) {
@@ -49,14 +49,20 @@ const createSaloon = async (req, res) => {
     const saloon = await saloonModel.findOne({ email });
 
     if (!saloon) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "users",
+        use_filename: true,
+      });
+
       const newSaloon = await saloonModel.create({
         title,
         email,
         password,
         role,
-        avatar,
+        avatar: result.secure_url,
         phone,
         address,
+        cloudinary_id: result.cloudinary_id,
       });
 
       const token = createToken(newSaloon._id);
@@ -68,6 +74,7 @@ const createSaloon = async (req, res) => {
         phone: newSaloon.phone,
         address: newSaloon.address,
         role: newSaloon.role,
+        avatar: newSaloon.avatar,
       });
     } else {
       return res.status(400).json({
@@ -105,7 +112,7 @@ const signInSaloon = async (req, res) => {
 
     if (!saloon) {
       return res.status(400).json({
-        message: "Invalid email or password",
+        message: "User does not exists",
         code: 400,
         status: "failure",
       });
@@ -136,6 +143,7 @@ const signInSaloon = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).json(error);
   }
 };
