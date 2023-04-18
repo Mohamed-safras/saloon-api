@@ -7,7 +7,7 @@ const upload = require("../../utils/upload");
 
 const saloonRouter = express.Router();
 
-saloonRouter.post("/register", upload.single("avatar"), createSaloon);
+saloonRouter.post("/register", upload.single("file"), createSaloon);
 
 saloonRouter.post("/signin", signInSaloon);
 

@@ -23,13 +23,6 @@ const createSaloon = async (req, res) => {
         status: "failure",
       });
     }
-
-    if (!validator.isStrongPassword(password, passwordOption)) {
-      return res.status(400).json({
-        message: passwordError,
-      });
-    }
-
     if (!validator.isEmail(email)) {
       return res.status(400).json({
         message: "Email is not valid, check your email address",
@@ -46,6 +39,12 @@ const createSaloon = async (req, res) => {
       });
     }
 
+    if (!validator.isStrongPassword(password, passwordOption)) {
+      return res.status(400).json({
+        message: passwordError,
+      });
+    }
+
     const saloon = await saloonModel.findOne({ email });
 
     if (!saloon) {
@@ -53,6 +52,11 @@ const createSaloon = async (req, res) => {
         folder: "users",
         use_filename: true,
       });
+
+      if (!result) {
+        res.status(400).send({ error: "Error uploading file to Cloudinary" });
+        return;
+      }
 
       const newSaloon = await saloonModel.create({
         title,
@@ -84,7 +88,7 @@ const createSaloon = async (req, res) => {
       });
     }
   } catch (error) {
-    return res.status(500).json(error);
+    console.log(error);
   }
 };
 
@@ -129,17 +133,14 @@ const signInSaloon = async (req, res) => {
     }
 
     if (saloon && passwordMatch) {
-      const { _id, title, email, address, phone, avatar } = saloon;
+      const { _id, title, email, avatar } = saloon;
       const token = createToken(_id);
 
       return res.status(200).json({
         token,
-        title,
-        _id,
-        email,
-        address,
-        phone,
         avatar,
+        email,
+        title,
       });
     }
   } catch (error) {

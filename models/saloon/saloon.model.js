@@ -23,7 +23,6 @@ const SaloonSchema = new mongoose.Schema(
     title: {
       type: String,
       required: [true, "Name is required"],
-
       unique: [false, "name already exists in database!"],
     },
     email: {
@@ -35,28 +34,28 @@ const SaloonSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
     },
-    role: {
-      type: String,
-      enum: ["customer", "saloon", "admin"],
-      required: [true, "Role is required"],
-    },
+    // role: {
+    //   type: String,
+    //   enum: ["customer", "saloon", "admin"],
+    //   required: [true, "Role is required"],
+    // },
     avatar: { type: String, required: [true, "Saloon avatar is required"] },
-    cloudinary_id: {
-      type: String,
-    },
-    address: {
-      shopNo: String,
-      street: String,
-      city: String,
-      district: String,
-      zip: String,
-      country: String,
+    // cloudinary_id: {
+    //   type: String,
+    // },
+    // address: {
+    //   shopNo: String,
+    //   street: String,
+    //   city: String,
+    //   district: String,
+    //   zip: String,
+    //   country: String,
 
-      location: {
-        type: Point,
-        required: true,
-      },
-    },
+    //   location: {
+    //     type: Point,
+    //     required: true,
+    //   },
+    // },
     phone: {
       type: Number,
       required: [true, "Phone number is required"],
