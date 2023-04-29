@@ -50,7 +50,7 @@ const createSaloon = async (req, res) => {
     if (!saloon) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "users",
-        use_filename: true,
+        use_filename: false,
       });
 
       if (!result) {

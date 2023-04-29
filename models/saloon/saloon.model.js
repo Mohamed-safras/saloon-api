@@ -34,15 +34,16 @@ const SaloonSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
     },
-    // role: {
-    //   type: String,
-    //   enum: ["customer", "saloon", "admin"],
-    //   required: [true, "Role is required"],
-    // },
+    role: {
+      type: String,
+      enum: ["customer", "salon", "admin"],
+      default: "salon",
+      required: [true, "Role is required"],
+    },
     avatar: { type: String, required: [true, "Saloon avatar is required"] },
-    // cloudinary_id: {
-    //   type: String,
-    // },
+    cloudinary_id: {
+      type: String,
+    },
     // address: {
     //   shopNo: String,
     //   street: String,
