@@ -19,34 +19,12 @@ const stylistSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    address: {
-      shopNo: String,
-      street: String,
-      city: String,
-      district: String,
-      province: String,
-      zip: String,
-      country: String,
-
-      location: {
-        type: Point,
-        required: true,
-      },
-    },
-    avatar: {
-      type: String,
-      required: true,
-    },
     feature_images: {
       type: Array,
       required: false,
     },
     service_special: {
       type: Array,
-      required: true,
-    },
-    phone: {
-      type: Number,
       required: true,
     },
     saloon_id: {

@@ -1,4 +1,4 @@
-const { saloonModel } = require("../../models/saloon/saloon.model");
+const { userModel } = require("../../models/client/user.model");
 const validator = require("validator");
 const {
   isValidMobilePhone,
@@ -7,18 +7,21 @@ const {
 } = require("../../validation/validation");
 const cloudinary = require("../../utils/cloudinary");
 const jwt = require("jsonwebtoken");
+const { saloonModel } = require("../../models/saloon/saloon.model");
 
 const createToken = (_id) => {
-  return jwt.sign({ _id }, process.env.JSONWEBTOKEN, { expiresIn: "30d" });
+  return jwt.sign({ _id }, process.env.JSONWEBTOKEN, { expiresIn: "3d" });
 };
 
-const createSaloon = async (req, res) => {
-  const { title, email, password, phone, address, role } = req.body;
+const createUser = async (req, res) => {
+  const { username, email, password, phone, address } = req.body;
+
+  console.log(req.body);
 
   try {
-    if (validator.isEmpty(title)) {
+    if (validator.isEmpty(username)) {
       return res.status(400).json({
-        message: "Saloon name can not be empty",
+        message: "User Name can not be empty",
         code: 400,
         status: "failure",
       });
@@ -40,16 +43,17 @@ const createSaloon = async (req, res) => {
     }
 
     if (!validator.isStrongPassword(password, passwordOption)) {
+      console.log(password);
       return res.status(400).json({
         message: passwordError,
       });
     }
 
-    const saloon = await saloonModel.findOne({ email });
+    const saloon = await userModel.findOne({ email, username });
 
     if (!saloon) {
-      // const result = await cloudinary.uploader.upload(req.file.path, {
-      //   folder: "users",
+      // const result = await cloudinary.uploader.upload(file?.path, {
+      //   folder: "client",
       //   use_filename: false,
       // });
 
@@ -58,14 +62,13 @@ const createSaloon = async (req, res) => {
       //   return;
       // }
 
-      const newSaloon = await saloonModel.create({
-        title,
+      const newSaloon = await userModel.create({
+        username,
         email,
         password,
-        role,
-        // avatar: result.secure_url,
         phone,
         address,
+        // avatar: result.secure_url,
         // cloudinary_id: result.cloudinary_id,
       });
 
@@ -73,26 +76,22 @@ const createSaloon = async (req, res) => {
 
       return res.status(201).json({
         token,
-        title: newSaloon.title,
-        email: newSaloon.email,
-        phone: newSaloon.phone,
-        address: newSaloon.address,
-        role: newSaloon.role,
-        // avatar: newSaloon.avatar,
       });
-    } else {
+    }
+  } catch (error) {
+    if (error.code === 11000 && error.keyPattern.email === 1) {
       return res.status(400).json({
-        message: "user is already exist",
+        message: "Email address is already in use",
         code: 400,
         status: "failure",
       });
     }
-  } catch (error) {
-    console.log(error);
+
+    return res.status(500).json(error);
   }
 };
 
-const signInSaloon = async (req, res) => {
+const signIn = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -112,7 +111,7 @@ const signInSaloon = async (req, res) => {
       });
     }
 
-    const saloon = await saloonModel.findOne({ email });
+    const saloon = await userModel.findOne({ email });
 
     if (!saloon) {
       return res.status(400).json({
@@ -133,14 +132,11 @@ const signInSaloon = async (req, res) => {
     }
 
     if (saloon && passwordMatch) {
-      const { _id, title, email, avatar } = saloon;
+      const { _id } = saloon;
       const token = createToken(_id);
 
       return res.status(200).json({
         token,
-        avatar,
-        email,
-        title,
       });
     }
   } catch (error) {
@@ -149,7 +145,18 @@ const signInSaloon = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  const user_id = req.user;
+  try {
+    const response = await userModel.findOne(user_id);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
-  createSaloon,
-  signInSaloon,
+  createUser,
+  signIn,
+  getUser,
 };

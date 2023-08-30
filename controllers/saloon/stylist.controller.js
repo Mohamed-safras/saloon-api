@@ -1,74 +1,86 @@
 const stylistModel = require("../../models/saloon/stylists.model");
-const validator = require("validator");
+
 const { isValidMobilePhone } = require("../../validation/validation");
-const asyncHandler = require("express-async-handler");
+const cloudinary = require("../../utils/cloudinary");
+const validator = require("validator");
+const { v4: uuidv4 } = require("uuid");
 const addStylist = async (req, res) => {
+  const { name, experience, email, about, working_time, service_special } =
+    req.body;
+
   const saloon_id = req.user;
-  const {
-    name,
-    about,
-    experience,
-    email,
-    address,
-    phone,
-    avatar,
-    feature_images,
-    service_special,
-    working_time,
-  } = req.body;
+  const files = req.files;
+  const feature_images = [];
 
   try {
     if (validator.isEmpty(name)) {
       return res.status(400).json({
-        message: "Saloon name can not be empty",
+        message: "stylist name is required",
         code: 400,
         status: "failure",
       });
     }
 
-    if (!validator.isEmail(email)) {
+    if (validator.isEmpty(email)) {
       return res.status(400).json({
-        message: "Email is not valid, check your email address",
+        message: "email is required",
         code: 400,
         status: "failure",
       });
     }
+    const service = await stylistModel.findOne({ email, saloon_id });
 
-    if (!isValidMobilePhone(phone)) {
-      return res.status(400).json({
-        message: "phone number is not valid",
-        code: 400,
-        status: "failure",
+    if (!service) {
+      //   console.log(service)
+
+      for (const file of files) {
+        if (file?.path) {
+          await cloudinary.uploader.upload(
+            file?.path,
+            {
+              folder: "stylist",
+              use_filename: false,
+              resource_type: "image",
+              unique_filename: false,
+              public_id: uuidv4(),
+              overwrite: true,
+            },
+            (error, result) => {
+              if (error) {
+                console.log(error);
+              } else {
+                feature_images.push({
+                  src: result.secure_url,
+                  image_ref: result.public_id,
+                });
+              }
+            }
+          );
+        }
+      }
+
+      const newSerive = await stylistModel.create({
+        ...req.body,
+        // name,
+        feature_images,
+        // experience,
+        // email,
+        // service_special,
+        saloon_id,
+        // working_time,
+        // about,
       });
+      console.log(newSerive);
+      return res.status(201).json(newSerive);
     }
 
-    const stylist = await stylistModel.findOne({ email });
-
-    if (stylist) {
-      return res.status(400).json({
-        message:
-          "The email address of the stylist already blongs to another saloon",
-        code: 400,
-        status: "failure",
-      });
-    }
-
-    const newStylist = await stylistModel.create({
-      name,
-      about,
-      experience,
-      email,
-      address,
-      avatar,
-      feature_images,
-      service_special,
-      saloon_id,
-      phone,
-      working_time,
+    return res.status(400).json({
+      message: "You already added staff with same Email",
+      code: 400,
+      status: "failure",
     });
-
-    return res.status(201).json(newStylist);
   } catch (error) {
+    console.log(error);
     return res.status(500).json(error);
   }
 };

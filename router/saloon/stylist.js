@@ -4,12 +4,17 @@ const {
   getAllStylist,
 } = require("../../controllers/saloon/stylist.controller");
 
-const requireAuth = require("../../middleware/requireAuth");
-
+const { SaloonAuthUser } = require("../../middleware/requireAuth");
+const upload = require("../../utils/upload");
 const saloonspecialistRouter = express.Router();
 
-saloonspecialistRouter.post("/addStylist", requireAuth, addStylist);
+saloonspecialistRouter.post(
+  "/addStylist",
+  SaloonAuthUser,
+  upload.array("files"),
+  addStylist
+);
 
-saloonspecialistRouter.get("/getAllStylists", requireAuth, getAllStylist);
+saloonspecialistRouter.get("/getAllStylists", SaloonAuthUser, getAllStylist);
 
 module.exports = saloonspecialistRouter;

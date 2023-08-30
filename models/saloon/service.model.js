@@ -27,10 +27,7 @@ const serviceSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // style: {
-    //   type: Object,
-    //   required: true,
-    // },
+
     description: {
       type: String,
       required: false,

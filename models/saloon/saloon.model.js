@@ -44,19 +44,10 @@ const SaloonSchema = new mongoose.Schema(
     cloudinary_id: {
       type: String,
     },
-    // address: {
-    //   shopNo: String,
-    //   street: String,
-    //   city: String,
-    //   district: String,
-    //   zip: String,
-    //   country: String,
-
-    //   location: {
-    //     type: Point,
-    //     required: true,
-    //   },
-    // },
+    address: {
+      type: String,
+      required: false,
+    },
     phone: {
       type: Number,
       required: [true, "Phone number is required"],
